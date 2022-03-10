@@ -1,35 +1,21 @@
 import tkinter
 from PIL import Image, ImageTk
 
-class Application(tkinter.Frame):
-    def __init__(self, master=None):
-        super().__init__(master)
-        self.master = master
-        self.master.title('tkinter canvas trial')
-        self.pack()
-        self.create_widgets()
+def get_concat_h_cut(im1, im2):
+    dst = Image.new('RGBA', (im1.width + im2.width + 26, min(im1.height, im2.height)), None)
+    dst.alpha_composite(im1, (0, 0))
+    dst.alpha_composite(im2, (im1.width + 26, 0))
+    return dst
 
-    def create_widgets(self):
-        global im
+def get_concat_v_cut(im1, im2):
+    dst = Image.new('RGBA', (min(im1.width, im2.width), im1.height + im2.height), None)
+    dst.alpha_composite(im1, (0, 0))
+    dst.alpha_composite(im2, (0, 74))
+    return dst
 
-        # 画像読み込み
-        read_image = Image.open('test_figure.png')
+im1 = Image.open("森.png")
+im2 = Image.open("山.png")
 
-        # canvas作成
-        self.test_canvas = tkinter.Canvas(self, width=read_image.width, height=read_image.height)
-        self.test_canvas.grid(row=0, column=0)
 
-        # canvasに画像を表示
-        im = ImageTk.PhotoImage(image=read_image)
-        self.test_canvas.create_image(0, 0, anchor='nw', image=im)
-    
-    def run(self):
-        self.master.mainloop()
-
-global im
-
-if __name__ == "__main__":
-    #param = sys.argv
-    root = tkinter.Tk()
-    app = Application(master=root)
-    app.run()
+get_concat_h_cut(im1, im2).save('pillow_concat_h_cut.png')
+get_concat_v_cut(im1, im2).save('pillow_concat_v_cut.png')

@@ -1,16 +1,23 @@
+from io import BytesIO
 from importlib.resources import open_binary
 from tkinter import Frame
 from mtgsdk import Card
 from os.path import exists
 import urllib
-from tkinter import Canvas, Tk
+from tkinter import Button, Canvas, Tk, E, W
 from PIL import ImageTk, Image
 
 class GeneratorApp(Frame):
     def __init__(self, master=None):
         super().__init__(master)
 
-        self.name = '森'
+        # 定数
+        self.APP_NAME = "Decklist Image Generator"
+        self.GEOMETRY = "1280x720"
+        self.CONFIG_PATH = "config\\config.json"
+        self.TMP_POSTSCRIPT_PATH = "tmp.ps"
+
+        self.name = '山'
         self.language = 'Japanese'
         self.set = 'NEO'
         self.ext = 'png'
@@ -32,26 +39,24 @@ class GeneratorApp(Frame):
                     print("except @ write")
 
         # GUI
-        self.master.title(u"TkinterのCanvasを使ってみる")
-        self.master.geometry("800x450")   #ウインドウサイズ（「幅x高さ」で指定）
+        self.master.title(self.APP_NAME)
+        self.master.geometry(self.GEOMETRY)
         self.master_frame = Frame(self.master)
         self.master_frame.pack()
 
-        self.canvas = Canvas(self.master_frame, width = 800, height = 450)
+        self.canvas = Canvas(self.master_frame)
         self.canvas.pack()
-
-        # キャンバスのサイズを取得
-        self.master_frame.update() # Canvasのサイズを取得するため更新しておく
-        self.canvas_width = self.canvas.winfo_width()
-        self.canvas_height = self.canvas.winfo_height()
 
         # 画像の描画
         self.tk_img = ImageTk.PhotoImage(Image.open(self.filename))
-        self.canvas.create_image(
-            self.canvas_width / 2,       # 画像表示位置(Canvasの中心)
-            self.canvas_height / 2,                   
-            image=self.tk_img  # 表示画像データ
-        )
+        self.canvas.create_image(0, 0, image=self.tk_img)
+
+        self.export_button = Button(self.master_frame, text="エクスポート", command=self.export)
+        self.export_button.pack()
+
+    def export(self):
+        ps = self.canvas.postscript()
+        Image.open(BytesIO(ps.encode('utf-8'))).save("2017_07.png")
 
     def run(self):
         self.master.mainloop()
